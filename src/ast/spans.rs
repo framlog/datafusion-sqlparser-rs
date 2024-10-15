@@ -1069,6 +1069,7 @@ impl Spanned for AlterTableOperation {
             AlterTableOperation::ResumeRecluster => Span::empty(),
             AlterTableOperation::Algorithm { .. } => Span::empty(),
             AlterTableOperation::AutoIncrement { value, .. } => value.span(),
+            AlterTableOperation::Update { .. } => Span::empty(),
         }
     }
 }

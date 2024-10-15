@@ -8214,6 +8214,35 @@ impl<'a> Parser<'a> {
             let equals = self.consume_token(&Token::Eq);
             let value = self.parse_number_value()?;
             AlterTableOperation::AutoIncrement { equals, value }
+        } else if self.dialect.supports_alter_table_update() && self.parse_keyword(Keyword::UPDATE)
+        {
+            let mut assignments = vec![];
+            loop {
+                let target = self.parse_assignment_target()?;
+                self.expect_token(&Token::Eq)?;
+                // NOTE: Maybe it's better to save the index before parse_subexpr to do a real look
+                // ahead.
+                let value = self.parse_subexpr(self.dialect.prec_value(Precedence::Between))?;
+                assignments.push(Assignment { target, value });
+                if self.is_parse_comma_separated_end() {
+                    break;
+                }
+            }
+            let partition_id = if self.parse_keywords(&[Keyword::IN, Keyword::PARTITION]) {
+                Some(self.parse_identifier()?)
+            } else {
+                None
+            };
+            let selection = if self.parse_keyword(Keyword::WHERE) {
+                Some(self.parse_expr()?)
+            } else {
+                None
+            };
+            AlterTableOperation::Update {
+                assignments,
+                partition_id,
+                selection,
+            }
         } else {
             let options: Vec<SqlOption> =
                 self.parse_options_with_keywords(&[Keyword::SET, Keyword::TBLPROPERTIES])?;

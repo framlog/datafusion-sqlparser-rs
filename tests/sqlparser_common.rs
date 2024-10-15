@@ -14720,3 +14720,23 @@ fn parse_set_time_zone_alias() {
         _ => unreachable!(),
     }
 }
+
+fn test_parse_alter_table_update() {
+    let dialects = all_dialects_where(|d| d.supports_alter_table_update());
+    let cases = [
+        (
+            "ALTER TABLE t UPDATE col1 = 1, col2 = col3 + col4 WHERE cod4 = 1",
+            true,
+        ),
+        ("ALTER TABLE t UPDATE c = 0 IN PARTITION abc", true),
+        ("ALTER TABLE t UPDATE", false),
+        ("ALTER TABLE t UPDATE c WHERE 1 = 1", false),
+    ];
+    for (sql, is_valid) in cases {
+        if is_valid {
+            dialects.verified_stmt(sql);
+        } else {
+            assert!(dialects.parse_sql_statements(sql).is_err());
+        }
+    }
+}
