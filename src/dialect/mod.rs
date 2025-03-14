@@ -1005,6 +1005,10 @@ pub trait Dialect: Debug + Any {
     fn supports_set_names(&self) -> bool {
         false
     }
+
+    fn supports_select_table_final(&self) -> bool {
+        false
+    }
 }
 
 /// This represents the operators for which precedence must be defined

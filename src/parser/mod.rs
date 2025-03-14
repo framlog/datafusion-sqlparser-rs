@@ -11978,6 +11978,9 @@ impl<'a> Parser<'a> {
                 }
             }
 
+            let with_final =
+                self.dialect.supports_select_table_final() && self.parse_keyword(Keyword::FINAL);
+
             let mut table = TableFactor::Table {
                 name,
                 alias,
@@ -11989,6 +11992,7 @@ impl<'a> Parser<'a> {
                 json_path,
                 sample,
                 index_hints,
+                with_final,
             };
 
             while let Some(kw) = self.parse_one_of_keywords(&[Keyword::PIVOT, Keyword::UNPIVOT]) {

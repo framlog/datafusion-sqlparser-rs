@@ -29,6 +29,7 @@
 use log::debug;
 
 use crate::dialect::{Dialect, Precedence};
+use crate::keywords;
 use crate::keywords::Keyword;
 use crate::parser::{Parser, ParserError};
 use crate::tokenizer::Token;
@@ -256,6 +257,14 @@ impl Dialect for PostgreSqlDialect {
     }
 
     fn supports_set_names(&self) -> bool {
+        true
+    }
+
+    fn is_table_factor_alias(&self, explicit: bool, kw: &Keyword, _parser: &mut Parser) -> bool {
+        explicit || (!keywords::RESERVED_FOR_TABLE_ALIAS.contains(kw) && *kw != Keyword::FINAL)
+    }
+
+    fn supports_select_table_final(&self) -> bool {
         true
     }
 }

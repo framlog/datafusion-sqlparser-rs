@@ -1129,6 +1129,8 @@ pub enum TableFactor {
         /// Optional index hints(mysql)
         /// See: <https://dev.mysql.com/doc/refman/8.4/en/index-hints.html>
         index_hints: Vec<TableIndexHints>,
+        /// Clickhouse specific
+        with_final: bool,
     },
     Derived {
         lateral: bool,
@@ -1711,6 +1713,7 @@ impl fmt::Display for TableFactor {
                 json_path,
                 sample,
                 index_hints,
+                with_final,
             } => {
                 write!(f, "{name}")?;
                 if let Some(json_path) = json_path {
@@ -1732,6 +1735,9 @@ impl fmt::Display for TableFactor {
                 }
                 if *with_ordinality {
                     write!(f, " WITH ORDINALITY")?;
+                }
+                if *with_final {
+                    write!(f, " FINAL")?;
                 }
                 if let Some(TableSampleKind::BeforeTableAlias(sample)) = sample {
                     write!(f, "{sample}")?;
